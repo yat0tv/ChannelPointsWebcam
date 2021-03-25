@@ -19,7 +19,6 @@ async function init(accessToken, refreshToken){
     });
     apiClient = new ApiClient({authProvider});
     global.twitch.apiClient = apiClient;
-    //user_id = 55709266;
     try{
         const tokenInfo = await apiClient.getTokenInfo(accessToken);
         if(!!tokenInfo) {
