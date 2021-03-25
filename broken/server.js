@@ -27,7 +27,7 @@ async function init(aToken, rToken){
 			await create_reward("Test 2");
 		}
 	} catch(e){
-		
+		console.log("30", e);
 	}
 }
 
