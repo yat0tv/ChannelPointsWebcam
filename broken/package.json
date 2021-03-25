@@ -1,0 +1,11 @@
+{
+  "name": "Testing For Errors",
+  "version": "0.0.1",
+  "description": "Checking code for errors",
+  "main": "server.js",
+  "dependencies": {
+    "dotenv": "*",
+    "twitch": "*",
+    "twitch-auth": "*"
+  }
+}
