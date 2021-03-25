@@ -1,0 +1,77 @@
+.header {
+    padding: 2%;
+    background-color: rgb(128, 0, 107);
+    font-size: 50px;
+    text-align: center;
+    width: 100%;
+    color: white;
+ }
+ 
+ .footer {
+   padding: 2%;
+    background-color: red;
+    font-size: 50px;
+    text-align: center;
+    width: 100%
+ }
+ 
+ .dashboard {
+   padding: 3% 1%;
+ }
+
+h1 {
+  text-align: center;
+}
+
+.display-board {
+  width: 100%;
+  background-color: rgba(0, 119, 128, 0.719);
+  padding: 5%;
+}
+
+.number {
+  color: red;
+  font-size: 75px;
+  text-align: center;
+}
+
+.mrgnbtm {
+  margin-top: 20px;
+}
+
+.switch-button-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.switch-button {
+    margin: 10px 0;
+}
+.switch-button-control .switch-button.enabled {
+    background-color: rgb(128, 0, 107);
+    box-shadow: none;
+}
+.switch-button-control .switch-button {
+    height: 1.6em;
+    width: calc(1.6em * 2);
+    border: 2px solid #000;
+    box-shadow: inset 0px 0px 2px 0px rgba(0 0 0, 0.33);
+    border-radius: 1.6em;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.switch-button-control .switch-button.enabled .button {
+    background: white;
+    transform: translateX(calc(calc( 1.6em - (2 * 2px) ) + (2 *2px)));
+}
+
+.switch-button-control .switch-button .button {
+    height: calc(1.6em - (2 * 2px));
+    width: calc(1.6em - (2 * 2px));
+    border: 2px solid white;
+    border-radius: calc(1.6em - (2 * 2px));
+    background: rgb(128, 0, 107);
+    transition: all 0.3s ease-in-out;
+}
