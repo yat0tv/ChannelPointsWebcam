@@ -7,50 +7,50 @@
         <th>Title</th>
         <th></th>
         <th></th>
-        <th></th>
+        <!--<th></th>-->
       </tr>
       </thead>
       <tbody>
       <tr>
-        <td>{{webcam.src.title}}</td>
-        <td><!--{{webcam.src.height}}-->
-          <input type="range" min="0" max="5000" step="1" v-model="webcam.src.height">
-          <input type="number" v-model="webcam.src.height" v-on:change="onInputChange('src', 'height', $event.target.value)"/>
+        <td>{{webcam_data.src.title}}</td>
+        <td><!--{{webcam_data.src.height}}-->
+          <input type="range" min="0" max="5000" step="1" v-model="webcam_data.src.height" v-on:change="updateWebcam">
+          <input type="number" v-model="webcam_data.src.height" v-on:change="onInputChange('src', 'height', $event.target.value)"/>
         </td>
-        <td><!--{{webcam.src.width}}-->
-          <input type="range" min="0" max="5000" step="1" v-model="webcam.src.width">
-          <input type="number" v-model="webcam.src.width" v-on:change="onInputChange('src', 'width', $event.target.value)"/>
+        <td><!--{{webcam_data.src.width}}-->
+          <input type="range" min="0" max="5000" step="1" v-model="webcam_data.src.width" v-on:change="updateWebcam">
+          <input type="number" v-model="webcam_data.src.width" v-on:change="onInputChange('src', 'width', $event.target.value)"/>
         </td>
-        <td>3:4 ratio <input type="checkbox" v-model="webcam.src.ratio"/></td>
+        <!--<td>3:4 ratio <input type="checkbox" v-model="webcam_data.src.ratio"/></td>-->
       </tr>
       <tr>
-        <td>{{webcam.pos.title}}</td>
-        <td><!--{{webcam.pos.x}}-->
-          <input type="range" min="0" max="5000" step="1" v-model="webcam.pos.x">
-          <input type="number" v-model="webcam.pos.x" v-on:change="onInputChange('pos', 'x', $event.target.value)"/></td>
-        <td><!--{{webcam.pos.y}}-->
-          <input type="range" min="0" max="5000" step="1" v-model="webcam.pos.y">
-          <input type="number" v-model="webcam.pos.y" v-on:change="onInputChange('pos', 'y', $event.target.value)"/></td>
+        <td>{{webcam_data.pos.title}}</td>
+        <td><!--{{webcam_data.pos.x}}-->
+          <input type="range" min="0" max="5000" step="1" v-model="webcam_data.pos.x" v-on:change="updateWebcam">
+          <input type="number" v-model="webcam_data.pos.x" v-on:change="onInputChange('pos', 'x', $event.target.value)"/></td>
+        <td><!--{{webcam_data.pos.y}}-->
+          <input type="range" min="0" max="5000" step="1" v-model="webcam_data.pos.y" v-on:change="updateWebcam">
+          <input type="number" v-model="webcam_data.pos.y" v-on:change="onInputChange('pos', 'y', $event.target.value)"/></td>
+        <!--<td></td>-->
+      </tr>
+      <tr>
+        <td>{{webcam_data.size.title}}</td>
+        <td><!--{{webcam_data.size.height}}-->
+          <input type="range" min="0" max="5000" step="1" v-model="webcam_data.size.height" v-on:change="updateWebcam">
+          <input type="number" v-model="webcam_data.size.height" v-on:change="onInputChange('size', 'height', $event.target.value)"/>
+        </td>
+        <td><!--{{webcam_data.size.width}}-->
+          <input type="range" min="0" max="5000" step="1" v-model="webcam_data.size.width" v-on:change="updateWebcam">
+          <input type="number" v-model="webcam_data.size.width" v-on:change="onInputChange('size', 'width', $event.target.value)"/>
+        </td>
+        <!--<td>3:4 ratio <input type="checkbox" v-model="webcam_data.size.ratio"/></td>-->
+      </tr>
+      <!--<tr>
+        <td>{{webcam_data.status.title}}</td>
+        <td>{{webcam_data.status.on}}</td>
+        <td>{{webcam_data.status.time}}</td>
         <td></td>
-      </tr>
-      <tr>
-        <td>{{webcam.size.title}}</td>
-        <td><!--{{webcam.size.height}}-->
-          <input type="range" min="0" max="5000" step="1" v-model="webcam.size.height">
-          <input type="number" v-model="webcam.size.height" v-on:change="onInputChange('size', 'height', $event.target.value)"/>
-        </td>
-        <td><!--{{webcam.size.width}}-->
-          <input type="range" min="0" max="5000" step="1" v-model="webcam.size.width">
-          <input type="number" v-model="webcam.size.width" v-on:change="onInputChange('size', 'width', $event.target.value)"/>
-        </td>
-        <td>3:4 ratio <input type="checkbox" v-model="webcam.size.ratio"/></td>
-      </tr>
-      <tr>
-        <td>{{webcam.status.title}}</td>
-        <td>{{webcam.status.on}}</td>
-        <td>{{webcam.status.time}}</td>
-        <td></td>
-      </tr>
+      </tr>-->
       </tbody>
     </table>
   </div>
@@ -65,18 +65,22 @@ export default {
   name: 'Webcam',
   components: {
   },
-  props: ['webcam'],
+  props: ['webcam_data'],
   methods: {
     onInputChange (name, index, value) {
       console.log(name, index, value)
-      this.webcam[name][index] = value;
+      this.webcam_data[name][index] = value;
       this.updateWebcam();
     },
     updateWebcam() {
-      updateWebcam(this.webcam).then(response => {
+      console.log("Change to webcam detected");
+      updateWebcam(this.webcam_data).then(response => {
         console.log(response);
       });
     }
+  },
+  mounted() {
+    console.log("mounted status of webcam", this.webcam_data);
   }
 }
 </script>

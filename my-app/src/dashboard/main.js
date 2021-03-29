@@ -4,17 +4,15 @@ import { BootstrapVue } from 'bootstrap-vue'
 import router from './router'
 
 import VueSocketIO from 'vue-socket.io'
+import SocketIO from 'socket.io-client'
 
-const options = { path: '/my-app/' }; //Options object to pass into SocketIO
-//https://www.npmjs.com/package/vue-socket.io
+const options = {
+    extraHeaders: {"my-custom-header": 'abas'}
+}
+
 Vue.use(new VueSocketIO({
-      debug: true,
-      connection: SocketIO('http://localhost:3080', options), //options object is Optional
-      vuex: {
-        store,
-        actionPrefix: "SOCKET_",
-        mutationPrefix: "SOCKET_"
-      }
+      debug: false,
+      connection: SocketIO('http://localhost:3000', options), //options object is Optional
     })
 );
 
@@ -22,6 +20,7 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
+  //store,
   render: h => h(App),
 }).$mount('#app')
 

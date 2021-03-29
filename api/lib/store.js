@@ -1,120 +1,30 @@
+//TODO FileIO this data
+const fs = require('fs');
 
-var webcam = {
-    src : {
-        title: 'Webcam Feed Dimensions',
-        height: 720,
-        width: 1080
-    },
-    pos : {
-        title: 'Webcam Starting Position',
-        x : 0,
-        y : 0
-    },
-    size : {
-        title: 'Webcam Base Visual Size',
-        height: 240,
-        width: 360
-    },
-    status : {
-        title: 'Webcam Status',
-        on : false,
-        time : 0
+var webcam;
+var redemptions;
+
+function init(){
+    let rawWebcam = fs.readFileSync('data/webcam.json');
+    global.store.webcam = JSON.parse(rawWebcam);
+    webcam = global.store.webcam;
+    let rawRewards = fs.readFileSync('data/rewards.json');
+    global.store.redemptions = JSON.parse(rawRewards);
+    redemptions = global.store.redemptions;
+}
+
+function updateJSON(type){
+    switch(type){
+        case 'webcam':
+            webcam = global.store.webcam;
+            fs.writeFileSync('data/webcam.json', JSON.stringify(global.store.webcam));
+            break;
+        case 'rewards':
+            redemptions = global.store.redemptions;
+            fs.writeFileSync('data/rewards.json', JSON.stringify(global.store.redemptions));
+            break;
     }
-};
-
-var redemptions = {
-    '*Web Cam On' : {
-        'id' : '',
-        'available' : false,
-        'enabled' : true,
-        'cost' : 500,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'turn_on'
-    },
-    '*Zoom In' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'zoom_in'
-    },
-    '*Zoom Out' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'zoom_out'
-    },
-    '*Webcam Rave' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'rave'
-    },
-    '*Spin Cam' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'spin'
-    },
-    '*Cam 90deg' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'rotate'
-    },
-    '*Grow Webcam' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'grow'
-    },
-    '*Shrink Webcam' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'shrink'
-    },
-    '*Webcam Bounce' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'bounce'
-    },
-    '*Extend Webcam Timer' : {
-        'id' : '',
-        'available' : true,
-        'enabled' : false,
-        'cost' : 100,
-        'time' : 5,
-        'scaled_cost' : false,
-        'trigger' : 'extend'
-    }
-};
-
+}
 
 function find_by_id(id, callback){
     let found = false;
@@ -126,7 +36,23 @@ function find_by_id(id, callback){
     }
     return callback(found);
 }
-
+async function process_by_name(name, callback){
+    let found = false;
+    if(redemptions[name] != undefined){
+        found = redemptions[name];
+        let data = {index : found.id, username : 'Test', response : 'Just A Test', redemption_id : 0  }
+        await process_product(found, data, function(ret){
+            return callback({
+                error: ret.error,
+                msg : ret.data.msg,
+                data,
+                errors : ret.errors
+            });
+        });
+    } else {
+        return callback(found);
+    }
+}
 async function process_product_id(id, data, callback){
     //console.log('process_product_id');
     await find_by_id(id, async function(found){
@@ -152,13 +78,16 @@ function process_product(data, message, callback){
             //toggle self off
             webcam.status.on = true;
             setTimeout(function(){ countDown(); }, 1000);
+            global.twitch.toggle(0, false);
             break;
         default:
             break;
     }
     webcam.status.time += data.time*1;
+    webcam.redemption = data;
+    webcam.last_action = 'purchase';
     //send latest to overlay
-    console.log(webcam.status);
+    //console.log(webcam.status);
     global.io.emit("webcam", webcam);
     callback({error : false, data : {msg : '' }, errors : {}});
     /*if(data.category && Object.keys(rewards).length > 0){
@@ -175,14 +104,19 @@ function countDown(){
     } else {
         webcam.status.on = false;
         //emit update to overlay
+        webcam.last_action = 'countdown finished';
         global.io.emit("webcam", webcam);
-        console.log(webcam.status);
+        //console.log(webcam.status);
+        global.twitch.toggle(-1, false);
     }
 }
 
 
 module.exports = {
     process_product_id,
+    process_by_name,
     redemptions,
-    webcam
+    webcam,
+    updateJSON,
+    init
 }

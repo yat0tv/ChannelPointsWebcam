@@ -1,4 +1,4 @@
-# my-app
+# Webcam Channel Point Frontend
 
 ## Project setup
 ```

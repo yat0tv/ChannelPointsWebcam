@@ -1,7 +1,7 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "description": "example project react with nodejs",
+  "description": "nodeJS (express + socketIO) server for handling request from VueJS frontend",
   "main": "server.js",
   "scripts": {
     "start": "node server.bundle.js",
@@ -10,21 +10,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bbachi/vuejs-nginx-docker.git"
+    "url": "git+https://github.com/yat0tv/ChannelPointsWebcam.git"
   },
-  "author": "Bhargav Bachina",
-  "license": "ISC",
+  "author": "Yato",
+  "license": "bsd-3-clause",
   "bugs": {
-    "url": "https://github.com/bbachi/vuejs-nginx-docker/issues"
+    "url": "https://github.com/yat0tv/ChannelPointsWebcam/issues"
   },
-  "homepage": "https://github.com/bbachi/vuejs-nginx-docker#readme",
+  "homepage": "https://github.com/yat0tv/ChannelPointsWebcam#readme",
   "dependencies": {
     "axios": "*",
+    "debug": "^2.6.9",
     "dotenv": "*",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.0.4",
     "random-id": "^1.0.4",
-    "socket.io": "*",
+    "socket.io": "^3",
     "twitch": "*",
     "twitch-auth": "*",
     "twitch-pubsub-client": "*"

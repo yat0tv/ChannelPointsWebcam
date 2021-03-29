@@ -1,16 +1,35 @@
 const express = require('express');
+let http = require('http').Server(express);
 const path = require('path');
 const randomId = require('random-id');
 const app = express(),
       bodyParser = require("body-parser");
-      port = 3080;
+      port = 3080,
+      debug = require('debug')('http');
 
-let http = require('http').Server(express);
-global.io = require('socket.io')(http);
+global.io = require('socket.io')(http, {
+    //withCredentials: false,
+    cors: {
+        origin: 'http://localhost:8080',
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+    },
+    allowEIO3: true
+});
 io.on('connection', (socket) => {
+    //console.log("A user connected");
+
     socket.on('disconnect', () => {
-        console.log("A user disconnected");
+        //console.log("A user disconnected");
     });
+});
+/*setInterval(function(){
+    io.emit("hello", { data : ['just a test']});
+    console.log("Hello");
+}, 30000)*/
+http.listen(3000, function(){
+    //debug('listening');
 });
 
 const dotenv = require('dotenv');
@@ -19,7 +38,7 @@ const axios = require('axios')
 var loggedIn = false;
 // place holder for the data
 global.store = require("./lib/store.js");
-
+global.store.init();
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../my-app/dist')));
@@ -63,10 +82,13 @@ app.get('/api/webcam', (req, res) => {
   res.json(global.store.webcam);
 });
 app.post('/api/webcam', (req, res) => {
-    webcam = req.body.webcam;
+    global.store.webcam = req.body.webcam;
     //user.id = randomId(10);
     //console.log('Adding user:::::', user);
     //users.push(user);
+    global.store.webcam.last_action = 'updated';
+    global.io.emit("webcam", global.store.webcam);
+    global.store.updateJSON('webcam');
     res.json("Settings Updated");
 });
 
@@ -76,6 +98,27 @@ app.post('/api/create_reward', async (req, res) => {
         await global.twitch.create_reward(req.body.title);
         console.log("Create Finished");
         res.json("Reward Updated");
+        global.io.emit("redemptions", global.store.redemptions);
+    } else {
+        res.json("Not Logged In");
+    }
+});
+app.post('/api/remove_reward', async (req, res) => {
+    if(loggedIn) {
+        console.log("Remove Started");
+        await global.twitch.remove_reward(req.body.title);
+        console.log("Remove Finished");
+        res.json("Reward Updated");
+        global.io.emit("redemptions", global.store.redemptions);
+    } else {
+        res.json("Not Logged In");
+    }
+});
+app.post('/api/test_reward', async (req, res) => {
+    if(loggedIn) {
+    global.store.process_by_name(req.body.title, function(data){
+        res.json("Test Sent");
+    })
     } else {
         res.json("Not Logged In");
     }
@@ -86,7 +129,10 @@ app.get('/api/redemptions', (req, res) => {
 });
 
 app.post('/api/redemptions', (req, res) => {
-    redemptions = req.body.redemption;
+    global.store.redemptions = req.body.redemption;
+    global.io.emit("redemptions", global.store.redemptions);
+    global.store.updateJSON('rewards');
+    global.twitch.toggle(-1, false);
     res.json("Settings Updated");
 });
 

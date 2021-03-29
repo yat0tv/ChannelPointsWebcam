@@ -21,3 +21,20 @@ export async function createReward(data) {
     })
     return await response.json();
 }
+
+export async function removeReward(data) {
+    const response = await fetch(`/api/remove_reward`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title: data})
+    })
+    return await response.json();
+}
+export async function testReward(data) {
+    const response = await fetch(`/api/test_reward`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title: data})
+    })
+    return await response.json();
+}

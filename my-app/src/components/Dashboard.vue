@@ -5,8 +5,8 @@
     </div>
     <div class="row mrgnbtm">
         <!--<Users v-if="users.length > 0" :users="users" />-->
-      <Redemptions :redemptions="redemptions" />
-      <Webcam :webcam="webcam" />
+      <Redemptions :redemptions="redemptions" @refresh="getAllRedemptions"/>
+      <Webcam :webcam_data="webcam_data" @refresh="getAllWebcam" />
     </div>
   </div>
 </template>
@@ -33,14 +33,14 @@ export default {
       return {
           //users: [],
           //numberOfUsers: 0
-          webcam: {},
+          webcam_data: {},
           redemptions: {}
       }
   },
   methods: {
     getAllRedemptions() {
       getAllRedemptions().then(response => {
-        console.log(response)
+        //console.log(response)
         this.redemptions = response;
         //this.users = response
         //this.numberOfUsers = this.users.length
@@ -48,8 +48,8 @@ export default {
     },
     getAllWebcam() {
       getAllWebcam().then(response => {
-        console.log(response)
-        this.webcam = response;
+        //console.log(response)
+        this.webcam_data = response;
         //this.users = response
         //this.numberOfUsers = this.users.length
       })

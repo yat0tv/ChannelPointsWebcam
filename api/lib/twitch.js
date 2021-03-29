@@ -9,7 +9,7 @@ const pubSubClient = new PubSubClient();
 var available_rewards = {};
 
 async function init(accessToken, refreshToken){
-
+    //console.log(accessToken, refreshToken);
     const authProvider = new RefreshableAuthProvider(new StaticAuthProvider(clientId, accessToken), {
         clientSecret,
         refreshToken,
@@ -19,6 +19,7 @@ async function init(accessToken, refreshToken){
     });
     apiClient = new ApiClient({authProvider});
     global.twitch.apiClient = apiClient;
+    //user_id = 55709266;
     try{
         const tokenInfo = await apiClient.getTokenInfo(accessToken);
         if(!!tokenInfo) {
@@ -32,7 +33,8 @@ async function init(accessToken, refreshToken){
                     let store = {index : message.rewardId, username : message.userDisplayName, response : message.message, redemption_id : message.id  }
                     //console.log("pubsub", store);
                     await global.store.process_product_id(store.index, store, async function(data){
-                        if (data.error) {
+                        if(data.msg == "Product ID not found"){
+                        } else if (data.error) {
                             await markRejected(store.index, store.redemption_id);
                         } else {
                             await markComplete(store.index, store.redemption_id);
@@ -48,35 +50,18 @@ async function init(accessToken, refreshToken){
     console.log("helix init");
 }
 
-function toggle(category, tier, keep_current_tier){
+function toggle(tier, keep_current_tier){
     //todo enable tier+1 disable all != tier+1
-    let ids = [];
-    let id_tiers = {};
-    global.db.store_products.findAll({
-        where: {'category': category},
-    }).then(async data => {
-        for(let i in data) {
-            ids.push(data[i].api_id);
-            id_tiers[data[i].api_id] = data[i].toggle_tier;
-        }
-        //console.log("toggling", ids);
-        let resp = await apiClient.helix.channelPoints.getCustomRewardsByIds(
-            user_id,
-            ids
-        );
-        for(let r = 0; r < resp.length; r++){
-            let reward = resp[r];
+    for(let i in global.store.redemptions){
+        let reward = global.store.redemptions[i];
+        if(reward.id != "") {
             let isEnabled = false;
-            /*if(!reward.isEnabled){
-                isEnabled = true;
-            }*/
-            if(id_tiers[reward.id] == tier+1 || (keep_current_tier && id_tiers[reward.id] == tier)){
+            if ((reward.tier == tier + 1 || (keep_current_tier && reward.tier == tier)) && reward.available == true) {
                 isEnabled = true;
             }
-            apiClient.helix.channelPoints.updateCustomReward(user_id, reward.id, {isEnabled : isEnabled})
+            apiClient.helix.channelPoints.updateCustomReward(user_id, reward.id, {isEnabled: isEnabled, cost : reward.cost})
         }
-    });
-
+    }
 }
 
 async function create_reward(data){
@@ -99,12 +84,28 @@ async function create_reward(data){
             user_id,
             reward_data
         )
-        console.log("Created returned: ", r);
-        //global.store.redemptions[data].id = r.id;
+        console.log("Creat Finished");
+        global.store.redemptions[data].id = r.id;
+        global.store.updateJSON('rewards');
     } catch(e){
         console.log("106", e);
     }
 }
+async function remove_reward(data){
+    try {
+        console.log("Removing For", user_id);
+        let r = await apiClient.helix.channelPoints.deleteCustomReward(
+            user_id,
+            global.store.redemptions[data].id
+        )
+        console.log("Remove Finished");
+        global.store.redemptions[data].id = null;
+        global.store.updateJSON('rewards');
+    } catch(e){
+        console.log("120", e);
+    }
+}
+
 
 async function list(){
     //https://api.twitch.tv/helix/channel_points/custom_rewards
@@ -140,6 +141,7 @@ async function markComplete(reward_id, redemption_id){
 module.exports = {
     init,
     apiClient,
+    remove_reward,
     create_reward,
     toggle
 }
