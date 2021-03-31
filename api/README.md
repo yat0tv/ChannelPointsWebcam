@@ -20,4 +20,4 @@ Tested on:
 - nodejs version 14.16.0
 - npm version 7.5.4
 
-You Application will need the OAuth Redirect URL http://localhost:8080/api/validate
+Your Application will need the OAuth Redirect URL http://localhost:8080/api/validate
